@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reels/pages/chatscreen.dart';
+import 'package:reels/pages/chathome.dart';
+
 import 'package:reels/pages/videoreels.dart';
 import 'package:reels/provider/logoutprovider.dart';
 import 'package:reels/utils/sharedpre.dart';
@@ -16,7 +17,7 @@ class _BottombarState extends State<Bottombar> {
 
   final List<Widget> _screens = [
     VideoReels(),
-    Chatscreen(),
+    Chathome(),
   ];
 
   void _onItemTapped(int index) {

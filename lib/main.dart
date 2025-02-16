@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:reels/firebase_options.dart';
 import 'package:reels/pages/bottombar.dart';
 import 'package:reels/pages/login.dart';
+import 'package:reels/provider/chatprovider.dart';
 import 'package:reels/provider/loginprovider.dart';
 import 'package:reels/provider/logoutprovider.dart';
 import 'package:reels/utils/sharedpre.dart';
@@ -17,6 +18,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => Loginprovider()),
         ChangeNotifierProvider(create: (context) => Logoutprovider()),
+        ChangeNotifierProvider(create: (context) => ChatProvider())
       ],
       child: ReelsApp(),
     ),

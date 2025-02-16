@@ -14,6 +14,8 @@ class Loginprovider with ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  String get userId => _auth.currentUser?.uid ?? "";
+
   Future<User?> signInWithGoogle(BuildContext context) async {
     try {
       _isLoading = true;
@@ -69,5 +71,13 @@ class Loginprovider with ChangeNotifier {
           SnackBar(content: Text("Google Sign-In faild : ${e.toString()}")));
       return null;
     }
+  }
+
+  Future<void> checkLoginStatus() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      _userName = user.displayName ?? "User";
+    }
+    notifyListeners();
   }
 }

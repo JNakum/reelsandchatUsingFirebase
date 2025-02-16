@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reels/provider/loginprovider.dart';
+import 'package:reels/provider/chatprovider.dart';
 
 class Chatpage extends StatefulWidget {
-  const Chatpage({super.key});
+  final String chatRoomId;
+  const Chatpage({super.key, required this.chatRoomId});
 
   @override
   State<Chatpage> createState() => _ChatpageState();
@@ -34,26 +35,17 @@ class _ChatpageState extends State<Chatpage> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 5,
                   ),
-                  Consumer<Loginprovider>(
-                    builder: (context, loginProvider, child) {
+                  Consumer<ChatProvider>(
+                    builder: (context, chatProvider, child) {
                       return Text(
-                        loginProvider.userName,
+                        chatProvider.receiverName ?? "Unknown",
                         style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black),
+                            color: Colors.white),
                       );
                     },
                   ),
-                  // Text(
-                  //   "Jayesh Nakum",
-                  //   textAlign: TextAlign.center,
-                  //   style: TextStyle(
-                  //     color: Colors.white,
-                  //     fontSize: 26,
-                  //     fontWeight: FontWeight.w500,
-                  //   ),
-                  // ),
                 ],
               ),
             ),
