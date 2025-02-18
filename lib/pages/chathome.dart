@@ -38,10 +38,16 @@ class _ChathomeState extends State<Chathome> {
         .where('Searchkey', isLessThan: '${query.toLowerCase()}z')
         .get();
 
+    var loginProvider = Provider.of<Loginprovider>(context, listen: false);
+    String loggedInUserName = loginProvider.userName.toLowerCase();
+
     setState(() {
       searchResults = snapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+          .where((user) {
+        // Login user ko exclude karna
+        return user['UserName'].toLowerCase() != loggedInUserName;
+      }).toList();
     });
   }
 
@@ -122,14 +128,14 @@ class _ChathomeState extends State<Chathome> {
               ),
             ),
             SizedBox(height: 20),
-            Expanded(child: chatList(loginProvider, chatProvider)),
+            Expanded(child: usernameList(loginProvider, chatProvider)),
           ],
         ),
       ),
     );
   }
 
-  Widget chatList(Loginprovider loginProvider, ChatProvider chatProvider) {
+  Widget usernameList(Loginprovider loginProvider, ChatProvider chatProvider) {
     return searchResults.isEmpty
         ? Center(
             child: Text(
@@ -161,8 +167,8 @@ class _ChathomeState extends State<Chathome> {
         child: GestureDetector(
           onTap: () async {
             String chatRoomId = await chatProvider.createChatRoom(
-              loginProvider.userName, // Current User
-              user['UserName'], // Selected User
+              loginProvider.userId, // Current User
+              user['Id'], // Selected User
             );
 
             Provider.of<ChatProvider>(context, listen: false)

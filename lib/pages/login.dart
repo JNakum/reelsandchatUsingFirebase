@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:reels/pages/bottombar.dart';
 import 'package:reels/provider/loginprovider.dart';
+import 'package:reels/utils/notificationhelper.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -12,6 +15,19 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  NotificationHelper notificationSevices = NotificationHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    notificationSevices.requestNofificationPermission();
+    notificationSevices.firebaseInit(context);
+    notificationSevices.setupInteractMessage(context);
+    notificationSevices.getDiviceToken().then((value) {
+      log("Device Token Vaue => $value");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<Loginprovider>(context);

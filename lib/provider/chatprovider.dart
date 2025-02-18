@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatProvider extends ChangeNotifier {
@@ -7,31 +8,65 @@ class ChatProvider extends ChangeNotifier {
   String? _receiverName;
   String? get receiverName => _receiverName;
 
-  // Setter Method
   void setReceiverName(String name) {
     _receiverName = name;
     notifyListeners(); // UI Update
   }
 
-  Future<String> createChatRoom(String currentUser, String otherUser) async {
-    // Dono usernames ko alphabetically sort karke unique chatroom ID banao
-    List<String> sortedUsernames = [currentUser, otherUser]..sort();
-    String chatRoomId = "${sortedUsernames[0]}_${sortedUsernames[1]}";
+  Future<String> createChatRoom(String userId1, String userId2) async {
+    String chatRoomId = _generateChatRoomId(userId1, userId2);
 
-    DocumentReference chatRoomRef =
-        _firestore.collection('chatrooms').doc(chatRoomId);
+    QuerySnapshot chatRoomSnapshot = await _firestore
+        .collection('chatRooms')
+        .where("chatRoomId", isEqualTo: chatRoomId)
+        .get();
 
-    DocumentSnapshot chatRoomSnapshot = await chatRoomRef.get();
-
-    if (!chatRoomSnapshot.exists) {
-      // Agar chatroom exist nahi karta, to naya create karo
-      await chatRoomRef.set({
+    if (chatRoomSnapshot.docs.isEmpty) {
+      await _firestore.collection('chatRooms').doc(chatRoomId).set({
         'chatRoomId': chatRoomId,
-        'users': [currentUser, otherUser],
+        'users': [userId1, userId2],
+        'lastMessage': '',
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
 
     return chatRoomId;
+  }
+
+  String _generateChatRoomId(String userId1, String userId2) {
+    List<String> userIds = [userId1, userId2];
+    userIds.sort();
+    return userIds.join('_');
+  }
+
+  Future<void> sendMessage(String chatRoomId, String message) async {
+    if (message.isNotEmpty) {
+      var user = FirebaseAuth.instance.currentUser;
+      await _firestore
+          .collection("chatRooms")
+          .doc(chatRoomId)
+          .collection('messages')
+          .add({
+        'senderId': user!.uid,
+        'messageText': message,
+        'sendBy': user.displayName,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      await _firestore.collection('chatRooms').doc(chatRoomId).update({
+        'lastMessage': message,
+        'sendBy': user.displayName,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  Stream<QuerySnapshot> getMessages(String chatRoomId) {
+    return _firestore
+        .collection('chatRooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
   }
 }
